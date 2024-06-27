@@ -243,9 +243,9 @@ contract CrossChainConfiguration is Test {
     bridgeChain2 = HolographBridge(payable(holograph.getBridge()));
   }
 
-  /*
-VALIDATE CROSS-CHAIN DATA
-*/
+  /* -------------------------------------------------------------------------- */
+  /*                          VALIDATE CROSS-CHAIN DATA                         */
+  /* -------------------------------------------------------------------------- */
 
   /**
    * @notice This test checks if the addresses of the `cxipERC721Proxy` contracts deployed in chain1 and chain2 are different.
@@ -673,9 +673,10 @@ VALIDATE CROSS-CHAIN DATA
     HolographDropERC721V2 holographDropERC721V2Chain2 = holographDropERC721V2;
     assertEq(address(holographDropERC721V2Chain1), address(holographDropERC721V2Chain2));
   }
-  /*
-DEPLOY CROSS-CHAIN CONTRACTS
-*/
+
+  /* -------------------------------------------------------------------------- */
+  /*                        DEPLOY CROSS-CHAIN CONTRACTS                        */
+  /* -------------------------------------------------------------------------- */
 
   function deployTestSampleERC20(
     bool isChain1
@@ -740,9 +741,9 @@ DEPLOY CROSS-CHAIN CONTRACTS
     holographFactory.deployHolographableContract(deployConfig, signature, deployer);
   }
 
-  /*
-   * SECTION SampleERC20
-   */
+  /* -------------------------------------------------------------------------- */
+  /*                             SECTION SampleERC20                            */
+  /* -------------------------------------------------------------------------- */
 
   function testDeploySampleErc20Chain1EquivalentOnChain2() public {
     DeploymentConfig memory deployConfig = HelperDeploymentConfig.getERC20(
@@ -802,9 +803,9 @@ DEPLOY CROSS-CHAIN CONTRACTS
     holographFactory.deployHolographableContract(deployConfig, signature, deployer);
   }
 
-  /*
-   * SECTION SampleERC721
-   */
+  /* -------------------------------------------------------------------------- */
+  /*                            SECTION SampleERC721                            */
+  /* -------------------------------------------------------------------------- */
 
   function testDeploySampleErc721Chain1EquivalentOnChain2() public {
     DeploymentConfig memory deployConfig = HelperDeploymentConfig.getERC721(
@@ -866,9 +867,9 @@ DEPLOY CROSS-CHAIN CONTRACTS
     holographFactory.deployHolographableContract(deployConfig, signature, deployer);
   }
 
-  /*
-   * SECTION CxipERC721
-   */
+  /* -------------------------------------------------------------------------- */
+  /*                             SECTION CxipERC721                             */
+  /* -------------------------------------------------------------------------- */
 
   function testDeployCxipERC721Chain1EquivalentOnChain2() public {
     DeploymentConfig memory deployConfig = HelperDeploymentConfig.getCxipERC721(
@@ -930,9 +931,9 @@ DEPLOY CROSS-CHAIN CONTRACTS
     holographFactory.deployHolographableContract(deployConfig, signature, deployer);
   }
 
-  /*
-   * SECTION DropERC721V2
-   */
+  /* -------------------------------------------------------------------------- */
+  /*                            SECTION DropERC721V2                            */
+  /* -------------------------------------------------------------------------- */
 
   function testDeployHolographDropERC721V2Chain1EquivalentOnChain2() public {
     (
@@ -978,9 +979,9 @@ DEPLOY CROSS-CHAIN CONTRACTS
     holographFactory.deployHolographableContract(deployConfig, signature, deployer);
   }
 
-  /*
-VERIFY CHAIN CONFIGS
-*/
+  /* -------------------------------------------------------------------------- */
+  /*                            VERIFY CHAIN CONFIGS                            */
+  /* -------------------------------------------------------------------------- */
 
   /**
 @notice Tests that the Messaging Module address on Chain1 is not zero
