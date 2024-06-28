@@ -138,8 +138,7 @@ contract CrossChainConfiguration is Test {
   function deployTestHToken(bool isChain1) private returns (DeploymentConfig memory, bytes32, Verification memory) {
     string memory tokenName = string.concat("Holographed TestToken chain ", ((isChain1) ? "one" : "two"));
     DeploymentConfig memory deployConfig = HelperDeploymentConfig.getDeployConfigERC20(
-      //bytes32(0x000000000000000000000000000000000000486f6c6f67726170684552433230), //hToken hash
-      bytes32(0x000000000000000000000000000000000000000000000000000068546f6b656e),
+      bytes32(0x000000000000000000000000000000000000486f6c6f67726170684552433230), //hToken hash
       (isChain1) ? Constants.getHolographIdL1() : Constants.getHolographIdL2(),
       vm.getCode("hTokenProxy.sol:hTokenProxy"),
       tokenName,
