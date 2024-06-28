@@ -764,7 +764,10 @@ contract CrossChainConfiguration is Test {
   /* -------------------------------------------------------------------------- */
   /*                        DEPLOY CROSS-CHAIN CONTRACTS                        */
   /* -------------------------------------------------------------------------- */
-
+  function testDeployHTokenChain1EquivalentOnChain2() public {
+    (DeploymentConfig memory deployConfig, bytes32 hashHtokenTest, Verification memory signature) = deployTestHToken(
+      true
+    );
     // Verify that the contract does not exist on chain2
     vm.selectFork(chain2);
     assertEq(address(registryChain2.getHolographedHashAddress(hashHtokenTest)), Constants.zeroAddress);
