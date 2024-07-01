@@ -23,6 +23,6 @@ string constant DEFAULT_PLACEHOLDER_URI_2 = "https://url.com/not-revealed-2/";
 bytes constant DEFAULT_ENCRYPT_DECRYPT_KEY = abi.encode("random-encrypt-decrypt-key");
 bytes constant DEFAULT_ENCRYPT_DECRYPT_KEY_2 = abi.encode("random-encrypt-decrypt-key-2");
 
-uint40 constant DEFAULT_START_DATE = 1718822400; // Epoch time for June 3, 2024
+uint40 constant DEFAULT_START_DATE = 1751038537; // Epoch time for June 27, 2025
 uint32 constant DEFAULT_MAX_SUPPLY = 4173120; // Total number of ten-minute intervals until Oct 8, 2103
 uint24 constant DEFAULT_MINT_INTERVAL = 10 minutes; // Duration of each interval

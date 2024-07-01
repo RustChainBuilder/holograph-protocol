@@ -29,7 +29,7 @@ contract HolographerTests is Test {
   address deployer = vm.addr(Constants.getPKDeployer());
   uint256 localHostFork;
   string LOCALHOST_RPC_URL = vm.envString("LOCALHOST_RPC_URL");
-  bytes32 holographERC721Hash = bytes32(0x0000000000000000000000000000000000486f6c6f6772617068455243373231);
+  bytes32 holographERC721Hash = Constants.holographERC721Hash;
 
   /**
    * @notice Deploys the Holographer contract
@@ -47,7 +47,7 @@ contract HolographerTests is Test {
       vm.getCode("SampleERC721.sol:SampleERC721"),
       "Sample ERC721 Contract: unit test",
       "SMPLR",
-      0x0000000000000000000000000000000000000000000000000000000000000086,
+      Constants.eventConfig,
       1000,
       HelperDeploymentConfig.getInitCodeSampleErc721()
     );

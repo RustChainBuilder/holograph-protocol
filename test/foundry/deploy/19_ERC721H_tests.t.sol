@@ -2,7 +2,7 @@
 pragma solidity 0.8.13;
 
 import {Test, Vm, console} from "forge-std/Test.sol";
-import {Constants} from "../utils/Constants.sol";
+import {Constants, ErrorConstants} from "../utils/Constants.sol";
 import {ERC721H} from "../../../src/abstract/ERC721H.sol";
 import {Holographer} from "../../../src/enforcer/Holographer.sol";
 import {HolographLegacyERC721} from "../../../src/token/HolographLegacyERC721.sol";
@@ -45,7 +45,7 @@ contract ERC721HTests is Test {
    * Refers to the hardhat test with the description 'should fail be initialized twice'
    */
   function testInit() public {
-    vm.expectRevert("HOLOGRAPHER: already initialized");
+    vm.expectRevert(bytes(ErrorConstants.HOLOGRAPHER_ALREADY_INITIALIZED_ERROR_MSG));
     vm.prank(deployer);
     erc721h.init(abi.encode(deployer));
   }

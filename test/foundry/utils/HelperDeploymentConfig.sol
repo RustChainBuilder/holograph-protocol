@@ -12,10 +12,11 @@ import {SalesConfiguration} from "../../../src/drops/struct/SalesConfiguration.s
 
 library HelperDeploymentConfig {
   uint256 constant dropEventConfig = 0x0000000000000000000000000000000000000000000000000000000000040000;
+
   function getInitCodeHtokenETH() public pure returns (bytes memory) {
     return
       abi.encode(
-        bytes32(0x000000000000000000000000000000000000000000000000000068546f6b656e), //htokenHash
+        Constants.hTokenHash,
         Constants.getHolographRegistryProxy(), //registry address
         abi.encode(Constants.getDeployer(), uint16(0))
       );
@@ -30,7 +31,7 @@ library HelperDeploymentConfig {
   }
 
   function getInitCodeCxipERC721() public pure returns (bytes memory) {
-    bytes32 CxipERC721Hex = 0x0000000000000000000000000000000000000000000043786970455243373231;
+    bytes32 CxipERC721Hex = Constants.cxipERC721Hex;
     return abi.encode(CxipERC721Hex, Constants.getHolographRegistryProxy(), getInitCodeSampleErc721());
   }
 
@@ -46,7 +47,7 @@ library HelperDeploymentConfig {
   ) public pure returns (DeploymentConfig memory deployConfig) {
     deployConfig.contractType = contractType; //hToken
     deployConfig.chainType = chainType; //holograph id
-    deployConfig.salt = bytes32(0x00000000000000000000000000000000000000000000000000000000000003e8);
+    deployConfig.salt = Constants.saltHex;
     deployConfig.byteCode = contractByteCode;
     deployConfig.initCode = abi.encode(
       tokenName, //token name
@@ -60,6 +61,7 @@ library HelperDeploymentConfig {
     );
     return deployConfig;
   }
+
   function getDeployConfigERC721(
     bytes32 contractType,
     uint32 chainType,
@@ -98,6 +100,7 @@ library HelperDeploymentConfig {
         )
       );
   }
+
   /*
    * @note This contract is used to get the DeploymentConfig for hToken ETH
    * @dev This contract provides helper functions  to get the DeploymentConfig by chainType (getHolographIdL1 or getHolographIdL2) for hToken ETH
@@ -110,12 +113,12 @@ library HelperDeploymentConfig {
   ) public pure returns (DeploymentConfig memory deployConfig) {
     return
       getDeployConfigERC20(
-        bytes32(0x000000000000000000000000000000000000486f6c6f67726170684552433230), //hToken hash
+        Constants.erc20Hash,
         chainType,
         contractByteCode,
         "Holographed ETH",
         "hETH",
-        0x0000000000000000000000000000000000000000000000000000000000000000,
+        Constants.EMPTY_BYTES32,
         "Holographed ETH",
         getInitCodeHtokenETH()
       );
@@ -128,7 +131,7 @@ library HelperDeploymentConfig {
   ) public pure returns (DeploymentConfig memory deployConfig) {
     return
       getDeployConfigERC20(
-        bytes32(0x000000000000000000000000000000000000486f6c6f67726170684552433230), //hToken hash
+        Constants.erc20Hash,
         chainType,
         contractByteCode,
         isL1 ? "Sample ERC20 Token (localhost)" : "Sample ERC20 Token (localhost2)",
@@ -147,7 +150,7 @@ library HelperDeploymentConfig {
   ) public pure returns (DeploymentConfig memory deployConfig) {
     return
       getDeployConfigERC721(
-        bytes32(0x0000000000000000000000000000000000486f6c6f6772617068455243373231), //HolographERC721 hash,
+        Constants.holographERC721Hash,
         chainType,
         contractByteCode,
         isL1 ? "CXIP ERC721 Collection (localhost)" : "CXIP ERC721 Collection (localhost2)",
@@ -166,7 +169,7 @@ library HelperDeploymentConfig {
   ) public pure returns (DeploymentConfig memory deployConfig) {
     return
       getDeployConfigERC721(
-        bytes32(0x0000000000000000000000000000000000486f6c6f6772617068455243373231), //HolographERC721 hash,
+        Constants.holographERC721Hash,
         chainType,
         contractByteCode,
         isL1 ? "Sample ERC721 Contract (localhost)" : "Sample ERC721 Contract (localhost2)",
@@ -190,7 +193,7 @@ library HelperDeploymentConfig {
       presaleEnd: 0,
       publicSalePrice: 0,
       maxSalePurchasePerAddress: 0,
-      presaleMerkleRoot: bytes32(0x0000000000000000000000000000000000000000000000000000000000000000)
+      presaleMerkleRoot: Constants.EMPTY_BYTES32
     });
 
     DropsInitializerV2 memory initializer = DropsInitializerV2({
@@ -203,7 +206,7 @@ library HelperDeploymentConfig {
       metadataRendererInit: abi.encode("decscription", "imageURI", "animationURI")
     });
 
-    deployConfig.contractType = bytes32(0x0000000000000000000000486f6c6f677261706844726f704552433732315632); //Source contract type HolographDropERC721V2
+    deployConfig.contractType = Constants.contractTypeHolographDropERC721V2;
     deployConfig.chainType = chainType; //holograph id
     deployConfig.salt = Constants.saltHex;
     deployConfig.byteCode = contractByteCode;

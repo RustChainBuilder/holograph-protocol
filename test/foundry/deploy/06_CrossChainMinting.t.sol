@@ -400,7 +400,7 @@ contract CrossChainMinting is Test {
     deployConfig = HelperDeploymentConfig.getERC721(
       isL1 ? Constants.getHolographIdL1() : Constants.getHolographIdL2(),
       vm.getCode("SampleERC721.sol:SampleERC721"),
-      0x0000000000000000000000000000000000000000000000000000000000000086, // eventConfig,
+      Constants.eventConfig,
       isL1
     );
 
@@ -421,7 +421,7 @@ contract CrossChainMinting is Test {
     deployConfig = HelperDeploymentConfig.getCxipERC721(
       isL1 ? Constants.getHolographIdL1() : Constants.getHolographIdL2(),
       vm.getCode("CxipERC721Proxy.sol:CxipERC721Proxy"),
-      0x0000000000000000000000000000000000000000000000000000000000000086, // eventConfig,
+      Constants.eventConfig,
       isL1
     );
 
@@ -442,12 +442,12 @@ contract CrossChainMinting is Test {
     string memory tokenName = string.concat("Holographed TestToken chain ", ((isL1) ? "one" : "two"));
 
     deployConfig = HelperDeploymentConfig.getDeployConfigERC20(
-      bytes32(0x000000000000000000000000000000000000486f6c6f67726170684552433230), //hToken hash
+      Constants.hTokenHash,
       (isL1) ? Constants.getHolographIdL1() : Constants.getHolographIdL2(),
       vm.getCode("hTokenProxy.sol:hTokenProxy"),
       tokenName,
       "hTTC1",
-      bytes32(0x0000000000000000000000000000000000000000000000000000000000000000),
+      Constants.EMPTY_BYTES32,
       tokenName,
       HelperDeploymentConfig.getInitCodeHtokenETH()
     );
