@@ -346,6 +346,42 @@ Then you can run the Foundry tests with:
 
 Please make use of the `pnpm run prettier:fix` command to format the codebase into a universal style.
 
+## Foundry scripts
+
+### Generate SAFE transaction json
+
+Step to run the foundry script to generate a SAFE transaction json file.
+
+#### Required nvironment Variables
+
+```shell
+HOLOGRAPH=
+HOLOGRAPH_OPERATOR=
+JOBS_BATCH_SIZE=1000
+SAFE_WALLET=
+```
+
+#### 1. Run `get-job-info-from-available-operator-job.ts`
+
+```shell
+ts-node ./scripts/get-job-info-from-available-operator-job.ts --file ./incomplete-jobs.json
+```
+
+#### 2. Import the csv file generated from the indexer in the `./scripts/incomplete_jobs_processing` directory
+
+> [!WARNING]
+> The file should be structured with 4 columns: `jobHash`,`txHash`,`payload`,`chainId`
+> The end of file shouln't have a new line.
+
+> [!TIP]
+> The `txHash`,`payload` columns are not used in the script, so you can just fill them with bytes32(0x00) 0x0000000000000000000000000000000000000000000000000000000000000000
+
+#### 3. Generate safe json files
+
+```shell
+pnpm generateSafeTx
+```
+
 ## Directory Structure
 
 <pre>
@@ -429,4 +465,4 @@ Read through [CONTRIBUTING.md](./CONTRIBUTING.md) for a general overview of our 
 
 ## License
 
-All files within this repository are licensed under the [MIT License](https://github.com/holographxyz/holograph-protocol/blob/develop/LICENSE.md) unless stated otherwise.
+Files under this repository are licensed under [Holograph Limited Public License](https://github.com/holographxyz/holograph-protocol/blob/testnet/LICENSE.md) (H-LPL) 1.0.0 unless otherwise stated.
