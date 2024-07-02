@@ -41,7 +41,7 @@ library Constants {
   }
 
   function getHolographOperator() internal pure returns (address) {
-    return address(0x443d6F2051716473e0849fb475e19f09ed488404);
+    return address(0x1c87f1fDF455E2bB90B1692Cb2ADdE946Afe848b);
   }
 
   function getHolographOperatorProxy() internal pure returns (address) {
