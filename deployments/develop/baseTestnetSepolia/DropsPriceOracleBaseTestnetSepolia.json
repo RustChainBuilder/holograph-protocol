@@ -183,7 +183,9 @@
         "blockNumber": 9370893,
         "transactionHash": "0xaff83055009860cb9a7d15a2ea97d87727f9c84ef05ac37bbd98a234c7cf5f32",
         "address": "0x2694a14ea8D91F4CC314A3dBe8819eaadb7E025E",
-        "topics": ["0x8ffcdc15a283d706d38281f500270d8b5a656918f555de0913d7455e3e6bc1bf"],
+        "topics": [
+          "0x8ffcdc15a283d706d38281f500270d8b5a656918f555de0913d7455e3e6bc1bf"
+        ],
         "data": "0x000000000000000000000000f80f18f5b73ee2807c9c292a57363f5589964d80",
         "logIndex": 0,
         "blockHash": "0xbccb98bdb3f109b82a4a88530c5b9b2aaeafe376d403e13a012bdc1675e171dc"
