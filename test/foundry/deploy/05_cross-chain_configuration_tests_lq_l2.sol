@@ -28,7 +28,6 @@ import {hToken} from "../../../src/token/hToken.sol";
 import {HolographInterfaces} from "../../../src/HolographInterfaces.sol";
 import {MockERC721Receiver} from "../../../src/mock/MockERC721Receiver.sol";
 import {HolographRoyalties} from "../../../src/enforcer/HolographRoyalties.sol";
-import {SampleERC20} from "../../../src/token/SampleERC20.sol";
 import {SampleERC721} from "../../../src/token/SampleERC721.sol";
 import {DeploymentConfig} from "../../../src/struct/DeploymentConfig.sol";
 import {HolographDropERC721} from "../../../src/drops/token/HolographDropERC721.sol";
@@ -41,8 +40,7 @@ contract CrossChainConfiguration is Test {
   uint256 chain2;
   string LOCALHOST_RPC_URL = vm.envString("LOCALHOST_RPC_URL");
   string LOCALHOST2_RPC_URL = vm.envString("LOCALHOST2_RPC_URL");
-  uint256 privateKeyDeployer = 0xff22437ccbedfffafa93a9f1da2e8c19c1711052799acf3b58ae5bebb5c6bd7b;
-  address deployer = vm.addr(privateKeyDeployer);
+  address deployer = Constants.getDeployer();
   Holograph holograph;
   Holograph holographChain1;
   Holograph holographChain2;
@@ -155,6 +153,7 @@ contract CrossChainConfiguration is Test {
       Constants.getPKDeployer(),
       HelperSignEthMessage.toEthSignedMessageHash(hashHtokenTest)
     );
+
     Verification memory signature = Verification({v: v, r: r, s: s});
     if ((isChain1)) vm.selectFork(chain1);
     else vm.selectFork(chain2);
@@ -243,9 +242,9 @@ contract CrossChainConfiguration is Test {
     bridgeChain2 = HolographBridge(payable(holograph.getBridge()));
   }
 
-  /*
-VALIDATE CROSS-CHAIN DATA
-*/
+  /* -------------------------------------------------------------------------- */
+  /*                          VALIDATE CROSS-CHAIN DATA                         */
+  /* -------------------------------------------------------------------------- */
 
   /**
    * @notice This test checks if the addresses of the `cxipERC721Proxy` contracts deployed in chain1 and chain2 are different.
@@ -308,15 +307,20 @@ VALIDATE CROSS-CHAIN DATA
     assertEq(address(holographBridgeProxyChain1), address(holographBridgeProxyChain2));
   }
 
-  // TODO We do not have the address of holographer in Constants.sol
+  // TODO Check whether addresses should be the same
   // /**
   //  * @notice This test checks if the addresses of the `Holographer` contracts deployed in chain1 and chain2 are the same.
   //  * @dev This test is considered as a validation test on the deployment performed.
   //  * Refers to the hardhat test with the description 'Holographer'
   //  */
-  // function testHolographBridgeProxyAddress() public {
-  //     assertNotEq(address(holographerChain1), address(holographerChain2));
-  // }
+  function testHolographerAddress() public {
+    vm.skip(true);
+    vm.selectFork(chain1);
+    address holographerAddressChain1 = registryChain1.getHToken(Constants.getHolographIdL1());
+    vm.selectFork(chain2);
+    address holographerAddressChain2 = registryChain2.getHToken(Constants.getHolographIdL2());
+    assertNotEq(address(holographerAddressChain1), address(holographerAddressChain2));
+  }
 
   /**
    * @notice This test checks if the addresses of the `HolographERC20` contracts deployed in chain1 and chain2 are the same.
@@ -558,15 +562,22 @@ VALIDATE CROSS-CHAIN DATA
     assertEq(address(bridgeChain1), address(bridgeChain2));
   }
 
-  // TODO We do not have the address of holographer in Constants.sol
   // /**
   //  * @notice This test checks if the addresses of the `hTokenHolographer` contracts deployed in chain1 and chain2 are the same.
   //  * @dev This test is considered as a validation test on the deployment performed.
   //  * Refers to the hardhat test with the description 'hTokenHolographer'
   //  */
-  // function testHTokenHolographerAddress() public {
-  //     assertNotEq(address(hTokenholographerChain1), address(hTokenholographerChain2));
-  // }
+  function testHolographHToken() public {
+    // deploy on chain 1
+    (, bytes32 hashHtokenTestChain1, ) = deployTestHToken(true);
+    vm.selectFork(chain1);
+    address hTokenAddressChain1 = registryChain1.getHolographedHashAddress(hashHtokenTestChain1);
+    // deploy on chain 2
+    (, bytes32 hashHtokenTestChain2, ) = deployTestHToken(false);
+    vm.selectFork(chain2);
+    address hTokenAddressChain2 = registryChain2.getHolographedHashAddress(hashHtokenTestChain2);
+    assertNotEq(address(hTokenAddressChain1), address(hTokenAddressChain2));
+  }
 
   /**
    * @notice This test checks if the addresses of the `'hToken HolographERC20 Enforcer` contracts deployed in chain1 and chain2 are the same.
@@ -581,15 +592,38 @@ VALIDATE CROSS-CHAIN DATA
     assertEq(address(hTokenEnforcerChain1), address(hTokenEnforcerChain2));
   }
 
-  // TODO We do not have the address of holographer in Constants.sol
   // /**
   //  * @notice This test checks if the addresses of the `sampleErc20 Holographer` contracts deployed in chain1 and chain2 are the same.
   //  * @dev This test is considered as a validation test on the deployment performed.
   //  * Refers to the hardhat test with the description 'SampleERC20 Holographer'
   //  */
-  // function testSampleERC20HolographerAddress() public {
-  //     assertNotEq(address(sampleErc20HolographerChain1), address(sampleErc20HolographerChain2));
-  // }
+  function testSampleERC20Holographer() public {
+    vm.selectFork(chain1);
+    DeploymentConfig memory deployConfig = HelperDeploymentConfig.getERC20(
+      Constants.getHolographIdL1(),
+      vm.getCode("SampleERC20.sol:SampleERC20"),
+      true
+    );
+    bytes32 hashSampleERC20TestChain1 = HelperDeploymentConfig.getDeployConfigHash(
+      deployConfig,
+      Constants.getDeployer()
+    );
+    address sampleERC20AddressChain1 = registryChain1.getHolographedHashAddress(hashSampleERC20TestChain1);
+
+    vm.selectFork(chain2);
+    DeploymentConfig memory deployConfig_L2 = HelperDeploymentConfig.getERC20(
+      Constants.getHolographIdL2(),
+      vm.getCode("SampleERC20.sol:SampleERC20"),
+      false
+    );
+    bytes32 hashSampleERC20TestChain2 = HelperDeploymentConfig.getDeployConfigHash(
+      deployConfig_L2,
+      Constants.getDeployer()
+    );
+    address sampleERC20AddressChain2 = registryChain2.getHolographedHashAddress(hashSampleERC20TestChain2);
+
+    assertNotEq(address(sampleERC20AddressChain1), address(sampleERC20AddressChain2));
+  }
 
   /**
    * @notice This test checks if the addresses of the `'SampleERC20 HolographERC20 Enforcer` contracts deployed in chain1 and chain2 are the same.
@@ -604,15 +638,40 @@ VALIDATE CROSS-CHAIN DATA
     assertEq(address(sampleErc20EnforcerChain1), address(sampleErc20EnforcerChain2));
   }
 
-  // TODO We do not have the address of holographer in Constants.sol
   // /**
   //  * @notice This test checks if the addresses of the `SampleERC721 Holographer` contracts deployed in chain1 and chain2 are the same.
   //  * @dev This test is considered as a validation test on the deployment performed.
   //  * Refers to the hardhat test with the description 'SampleERC721 Holographer'
   //  */
-  // function testSampleERC721HolographerAddress() public {
-  //     assertNotEq(address(sampleErc721HolographerChain1), address(sampleErc721HolographerChain2));
-  // }
+  function testSampleERC721HolographerAddress() public {
+    vm.selectFork(chain1);
+    DeploymentConfig memory deployConfig = HelperDeploymentConfig.getERC721(
+      Constants.getHolographIdL1(),
+      vm.getCode("SampleERC721.sol:SampleERC721"),
+      bytes32(0x0000000000000000000000000000000000000000000000000000000000000086),
+      true
+    );
+    bytes32 hashSampleERC721TestChain1 = HelperDeploymentConfig.getDeployConfigHash(
+      deployConfig,
+      Constants.getDeployer()
+    );
+    address sampleERC721AddressChain1 = registryChain1.getHolographedHashAddress(hashSampleERC721TestChain1);
+
+    vm.selectFork(chain2);
+    DeploymentConfig memory deployConfig_L2 = HelperDeploymentConfig.getERC721(
+      Constants.getHolographIdL2(),
+      vm.getCode("SampleERC721.sol:SampleERC721"),
+      bytes32(0x0000000000000000000000000000000000000000000000000000000000000086),
+      true
+    );
+    bytes32 hashSampleERC721TestChain2 = HelperDeploymentConfig.getDeployConfigHash(
+      deployConfig_L2,
+      Constants.getDeployer()
+    );
+    address sampleERC721AddressChain2 = registryChain2.getHolographedHashAddress(hashSampleERC721TestChain2);
+
+    assertNotEq(address(sampleERC721AddressChain1), address(sampleERC721AddressChain2));
+  }
 
   /**
    * @notice This test checks if the addresses of the `'SampleERC721 HolographERC721 Enforcer` contracts deployed in chain1 and chain2 are the same.
@@ -627,15 +686,42 @@ VALIDATE CROSS-CHAIN DATA
     assertEq(address(sampleErc721EnforcerChain1), address(sampleErc721EnforcerChain2));
   }
 
-  // TODO We do not have the address of holographer in Constants.sol
+  // TODO Check whether to use the bytecode of the CxipERC721 or CxipERC721Proxy contract and whether the addresses should be the same.
   // /**
   //  * @notice This test checks if the addresses of the `SampleERC721 Holographer` contracts deployed in chain1 and chain2 are the same.
   //  * @dev This test is considered as a validation test on the deployment performed.
-  //  * Refers to the hardhat test with the description 'SampleERC721 Holographer'
+  //  * Refers to the hardhat test with the description 'CxipERC721 Holographer'
   //  */
-  // function testCxipErc721HolographerAddress() public {
-  //     assertNotEq(address(cxipErc721HolographerChain1), address(cxipErc721HolographerChain2));
-  // }
+  function testCxipErc721HolographerAddress() public {
+    vm.skip(true);
+    vm.selectFork(chain1);
+    DeploymentConfig memory deployConfig = HelperDeploymentConfig.getCxipERC721(
+      Constants.getHolographIdL1(),
+      vm.getCode("CxipERC721Proxy.sol:CxipERC721Proxy"),
+      bytes32(0x0000000000000000000000000000000000000000000000000000000000000086),
+      true
+    );
+    bytes32 hashSampleCxipERC721TestChain1 = HelperDeploymentConfig.getDeployConfigHash(
+      deployConfig,
+      Constants.getDeployer()
+    );
+    address cxipERC721AddressChain1 = registryChain1.getHolographedHashAddress(hashSampleCxipERC721TestChain1);
+
+    vm.selectFork(chain2);
+    DeploymentConfig memory deployConfig_L2 = HelperDeploymentConfig.getCxipERC721(
+      Constants.getHolographIdL2(),
+      vm.getCode("CxipERC721Proxy.sol:CxipERC721Proxy"),
+      bytes32(0x0000000000000000000000000000000000000000000000000000000000000086),
+      false
+    );
+    bytes32 hashSampleCxipERC721TestChain2 = HelperDeploymentConfig.getDeployConfigHash(
+      deployConfig_L2,
+      Constants.getDeployer()
+    );
+    address cxipERC721AddressChain2 = registryChain2.getHolographedHashAddress(hashSampleCxipERC721TestChain2);
+
+    assertNotEq(address(cxipERC721AddressChain1), address(cxipERC721AddressChain2));
+  }
 
   /**
    * @notice This test checks if the addresses of the `'SampleERC721 HolographERC721 Enforcer` contracts deployed in chain1 and chain2 are the same.
@@ -674,38 +760,13 @@ VALIDATE CROSS-CHAIN DATA
     assertEq(address(holographDropERC721V2Chain1), address(holographDropERC721V2Chain2));
   }
 
-  /*
-DEPLOY CROSS-CHAIN CONTRACTS
-*/
-
-  function deployTestSampleERC20(
-    bool isChain1
-  ) private returns (DeploymentConfig memory, bytes32, Verification memory) {
-    DeploymentConfig memory deployConfig = HelperDeploymentConfig.getERC20(
-      isChain1 ? Constants.getHolographIdL1() : Constants.getHolographIdL2(),
-      vm.getCode("SampleERC20.sol:SampleERC20"),
-      isChain1
-    );
-
-    bytes32 hashTokenTest = HelperDeploymentConfig.getDeployConfigHash(deployConfig, Constants.getDeployer());
-
-    (uint8 v, bytes32 r, bytes32 s) = vm.sign(
-      Constants.getPKDeployer(),
-      HelperSignEthMessage.toEthSignedMessageHash(hashTokenTest)
-    );
-    Verification memory signature = Verification({v: v, r: r, s: s});
-    if ((isChain1)) vm.selectFork(chain1);
-    else vm.selectFork(chain2);
-    holographFactory.deployHolographableContract(deployConfig, signature, Constants.getDeployer());
-
-    return (deployConfig, hashTokenTest, signature);
-  }
-
+  /* -------------------------------------------------------------------------- */
+  /*                        DEPLOY CROSS-CHAIN CONTRACTS                        */
+  /* -------------------------------------------------------------------------- */
   function testDeployHTokenChain1EquivalentOnChain2() public {
     (DeploymentConfig memory deployConfig, bytes32 hashHtokenTest, Verification memory signature) = deployTestHToken(
       true
     );
-
     // Verify that the contract does not exist on chain2
     vm.selectFork(chain2);
     assertEq(address(registryChain2.getHolographedHashAddress(hashHtokenTest)), Constants.zeroAddress);
@@ -741,9 +802,9 @@ DEPLOY CROSS-CHAIN CONTRACTS
     holographFactory.deployHolographableContract(deployConfig, signature, deployer);
   }
 
-  /*
-   * SECTION SampleERC20
-   */
+  /* -------------------------------------------------------------------------- */
+  /*                             SECTION SampleERC20                            */
+  /* -------------------------------------------------------------------------- */
 
   function testDeploySampleErc20Chain1EquivalentOnChain2() public {
     DeploymentConfig memory deployConfig = HelperDeploymentConfig.getERC20(
@@ -803,9 +864,9 @@ DEPLOY CROSS-CHAIN CONTRACTS
     holographFactory.deployHolographableContract(deployConfig, signature, deployer);
   }
 
-  /*
-   * SECTION SampleERC721
-   */
+  /* -------------------------------------------------------------------------- */
+  /*                            SECTION SampleERC721                            */
+  /* -------------------------------------------------------------------------- */
 
   function testDeploySampleErc721Chain1EquivalentOnChain2() public {
     DeploymentConfig memory deployConfig = HelperDeploymentConfig.getERC721(
@@ -867,9 +928,9 @@ DEPLOY CROSS-CHAIN CONTRACTS
     holographFactory.deployHolographableContract(deployConfig, signature, deployer);
   }
 
-  /*
-   * SECTION CxipERC721
-   */
+  /* -------------------------------------------------------------------------- */
+  /*                             SECTION CxipERC721                             */
+  /* -------------------------------------------------------------------------- */
 
   function testDeployCxipERC721Chain1EquivalentOnChain2() public {
     DeploymentConfig memory deployConfig = HelperDeploymentConfig.getCxipERC721(
@@ -931,9 +992,9 @@ DEPLOY CROSS-CHAIN CONTRACTS
     holographFactory.deployHolographableContract(deployConfig, signature, deployer);
   }
 
-  /*
-   * SECTION DropERC721V2
-   */
+  /* -------------------------------------------------------------------------- */
+  /*                            SECTION DropERC721V2                            */
+  /* -------------------------------------------------------------------------- */
 
   function testDeployHolographDropERC721V2Chain1EquivalentOnChain2() public {
     (
@@ -979,9 +1040,9 @@ DEPLOY CROSS-CHAIN CONTRACTS
     holographFactory.deployHolographableContract(deployConfig, signature, deployer);
   }
 
-  /*
-VERIFY CHAIN CONFIGS
-*/
+  /* -------------------------------------------------------------------------- */
+  /*                            VERIFY CHAIN CONFIGS                            */
+  /* -------------------------------------------------------------------------- */
 
   /**
 @notice Tests that the Messaging Module address on Chain1 is not zero
