@@ -465,4 +465,4 @@ Read through [CONTRIBUTING.md](./CONTRIBUTING.md) for a general overview of our 
 
 ## License
 
-Files under this repository are licensed under [Holograph Limited Public License](https://github.com/holographxyz/holograph-protocol/blob/testnet/LICENSE.md) (H-LPL) 1.0.0 unless otherwise stated.
+All files within this repository are licensed under the [MIT License](https://github.com/holographxyz/holograph-protocol/blob/develop/LICENSE.md) unless stated otherwise.
